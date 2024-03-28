@@ -1,7 +1,6 @@
 -- phpMyAdmin SQL Dump
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
---
 -- Hôte : mysql:3306
 -- Généré le : jeu. 28 mars 2024 à 08:43
 -- Version du serveur : 8.0.36
@@ -21,29 +20,7 @@ SET time_zone = "+00:00";
 -- Base de données : `Zythologue`
 --
 
-DELIMITER $$
---
--- Procédures
---
-CREATE DEFINER=`user_name`@`%` PROCEDURE `NoterBiere` (IN `p_ID_user` INT, IN `p_ID_Beer` INT, IN `p_rating_review` INT, IN `p_comment_review` TEXT)   BEGIN
-    DECLARE existing_review_count INT;
-    
-    SELECT COUNT(*) INTO existing_review_count
-    FROM review
-    WHERE ID_user = p_ID_user AND ID_Beer = p_ID_Beer;
-    
-    IF existing_review_count > 0 THEN
-        UPDATE review
-        SET rating_review = p_rating_review,
-            comment_review = p_comment_review
-        WHERE ID_user = p_ID_user AND ID_Beer = p_ID_Beer;
-    ELSE
-        INSERT INTO review (ID_Beer, ID_user, rating_review, comment_review)
-        VALUES (p_ID_Beer, p_ID_user, p_rating_review, p_comment_review);
-    END IF;
-END$$
 
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -105,18 +82,6 @@ INSERT INTO `Beer` (`ID_Beer`, `name`, `Description`, `ADV`, `creation`, `modifi
 (12, 'L\'hommelpap', 'C’est à partir de la Lupuline contenu dans la fleur, qui va ensuite être séchée, que la bière tire son bouquet et son amertume si particulier. Trois autres composantes vont également entrer en jeu. Il s’agit de l’orge, de l\'eau et des levures qui déterminent la couleur de la bière.', '9', '2024-03-27', NULL, 2),
 (13, 'L\'alezanne', 'D’un roux clair, couronnée d’une mousse dense, la bière est un peu trouble. En bouche, l’amertume du houblon se conjugue avec une pointe de sucre.', '6', '2024-03-27', NULL, 2);
 
---
--- Déclencheurs `Beer`
---
-DELIMITER $$
-CREATE TRIGGER `check_ABV_before_insert` BEFORE INSERT ON `Beer` FOR EACH ROW BEGIN
-    IF NEW.ADV < 0 OR NEW.ADV > 20 THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Le taux d'alcool (ABV) doit être compris entre 0 et 20.';
-    END IF;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -539,3 +504,42 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- ------------------------------------------------------------------------------
+
+DELIMITER $$
+--
+-- Procédures
+--
+CREATE DEFINER=`user_name`@`%` PROCEDURE `NoterBiere` (IN `p_ID_user` INT, IN `p_ID_Beer` INT, IN `p_rating_review` INT, IN `p_comment_review` TEXT)   BEGIN
+    DECLARE existing_review_count INT;
+    
+    SELECT COUNT(*) INTO existing_review_count
+    FROM review
+    WHERE ID_user = p_ID_user AND ID_Beer = p_ID_Beer;
+    
+    IF existing_review_count > 0 THEN
+        UPDATE review
+        SET rating_review = p_rating_review,
+            comment_review = p_comment_review
+        WHERE ID_user = p_ID_user AND ID_Beer = p_ID_Beer;
+    ELSE
+        INSERT INTO review (ID_Beer, ID_user, rating_review, comment_review)
+        VALUES (p_ID_Beer, p_ID_user, p_rating_review, p_comment_review);
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- ---------------------------------------------------------------------------------
+
+DELIMITER $$
+
+CREATE TRIGGER `check_ABV_before_insert` BEFORE INSERT ON `Beer` FOR EACH ROW
+BEGIN
+    IF NEW.ADV < 0 OR NEW.ADV > 20 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Le taux d''alcool (ABV) doit être compris entre 0 et 20.';
+    END IF;
+END$$
+
+DELIMITER ;
