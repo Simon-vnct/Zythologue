@@ -1,0 +1,11 @@
+# Modèle créé le : Thu Mar 28 11:34:25 CET 2024 
+user (ID_user, Name_user, Email, Password_user) 
+Beer (ID_Beer, name_Beer, Description_Beer, ADV_Beer, #ID_Brewerie) 
+Brewerie (ID_Brewerie, Name, Country_Brewerie, address_Brewerie, department_Brewerie) 
+Photo (ID_Photo, URL_Photo, #ID_Beer) 
+ingredient (ID_ingredient, Name_ingredient, Type_ingredient, Quantity_ingredient) 
+category (ID_Beer_type, Name_Beer_type) 
+contain (ID_ingredient, ID_Beer) 
+review (ID_Beer, ID_user, rating_review, comment_review) 
+favorite (ID_user, ID_Beer) 
+assign (ID_Beer, ID_Beer_type) 
